@@ -1,0 +1,703 @@
+BookMyShow Database Assignment
+
+Movie Theatre & Show Management System
+
+Objective – Design a normalized MySQL database for the theatre/movie-show scenario shown in the assignment. The database should store theatres, screens, movies, formats and individual show timings, and should support a query that lists all shows at a given theatre on a given date.
+
+1. Problem Understanding
+
+The application displays a theatre and the movies running there. When a user selects a date, the application shows all movies available at that theatre along with their show timings. For example, a theatre may have multiple movies, and each movie may have multiple show timings on the same date.
+
+One show is represented as one row in the SHOWS table. A show connects a movie, a screen, a movie format, a date and a time.
+
+2. Entities Identified
+
+Entity
+
+Description
+
+Theatre
+
+Represents a cinema/theatre such as PVR: Nexus.
+
+Screen
+
+Represents an individual screen inside a theatre.
+
+Movie
+
+Represents a movie being shown.
+
+Format
+
+Represents the presentation format, such as 2D or 3D.
+
+Show
+
+Represents one scheduled movie show on a particular screen, date and time.
+
+3. Table Structures and Attributes
+
+theatres
+
+Attribute
+
+Data Type
+
+Constraint
+
+Description
+
+theatre_id
+
+INT
+
+PK, AUTO_INCREMENT
+
+Unique theatre identifier
+
+theatre_name
+
+VARCHAR(100)
+
+NOT NULL
+
+Name of theatre
+
+location
+
+VARCHAR(150)
+
+NOT NULL
+
+Theatre location
+
+screens
+
+Attribute
+
+Data Type
+
+Constraint
+
+Description
+
+screen_id
+
+INT
+
+PK, AUTO_INCREMENT
+
+Unique screen identifier
+
+theatre_id
+
+INT
+
+FK, NOT NULL
+
+References theatres(theatre_id)
+
+screen_name
+
+VARCHAR(50)
+
+NOT NULL
+
+Screen name/number
+
+movies
+
+Attribute
+
+Data Type
+
+Constraint
+
+Description
+
+movie_id
+
+INT
+
+PK, AUTO_INCREMENT
+
+Unique movie identifier
+
+movie_name
+
+VARCHAR(200)
+
+NOT NULL
+
+Movie title
+
+language
+
+VARCHAR(50)
+
+NOT NULL
+
+Movie language
+
+formats
+
+Attribute
+
+Data Type
+
+Constraint
+
+Description
+
+format_id
+
+INT
+
+PK, AUTO_INCREMENT
+
+Unique format identifier
+
+format_name
+
+VARCHAR(20)
+
+UNIQUE, NOT NULL
+
+2D, 3D, etc.
+
+shows
+
+Attribute
+
+Data Type
+
+Constraint
+
+Description
+
+show_id
+
+INT
+
+PK, AUTO_INCREMENT
+
+Unique show identifier
+
+movie_id
+
+INT
+
+FK, NOT NULL
+
+References movies(movie_id)
+
+screen_id
+
+INT
+
+FK, NOT NULL
+
+References screens(screen_id)
+
+format_id
+
+INT
+
+FK, NOT NULL
+
+References formats(format_id)
+
+show_date
+
+DATE
+
+NOT NULL
+
+Date of the show
+
+show_time
+
+TIME
+
+NOT NULL
+
+Time of the show
+
+4. Relationships
+
+Relationship
+
+Cardinality
+
+Explanation
+
+Theatre → Screens
+
+One-to-Many
+
+One theatre can contain many screens. Each screen belongs to one theatre.
+
+Movie → Shows
+
+One-to-Many
+
+One movie can have many scheduled shows.
+
+Screen → Shows
+
+One-to-Many
+
+One screen can host many shows on different dates/times.
+
+Format → Shows
+
+One-to-Many
+
+One format can be used by many shows.
+
+Relationship summary: THEATRES 1:N SCREENS, MOVIES 1:N SHOWS, SCREENS 1:N SHOWS, and FORMATS 1:N SHOWS.
+
+5. Normalization
+
+1NF (First Normal Form)
+
+Each column contains atomic values. Show timings are not stored as a comma-separated list. For example, 1:00 PM, 4:10 PM and 6:20 PM are stored as separate SHOWS rows. There are no repeating groups or multi-valued columns.
+
+2NF (Second Normal Form)
+
+The tables use single-column surrogate primary keys. Therefore, there are no partial dependencies on part of a composite primary key. Each non-key attribute depends on the complete primary key of its table.
+
+3NF (Third Normal Form)
+
+Non-key attributes are stored in the table where they directly depend on the primary key. For example, movie_name and language are stored in MOVIES rather than repeated in SHOWS. Theatre details are stored in THEATRES and screen details in SCREENS. This removes transitive dependencies and unnecessary duplication.
+
+BCNF (Boyce-Codd Normal Form)
+
+For each table, every non-trivial functional dependency has a determinant that is a candidate key. The primary keys uniquely identify the rows. UNIQUE constraints are used for format_name, (theatre_id, screen_name), and (screen_id, show_date, show_time), making the relevant determinants unique. Foreign keys represent relationships and do not create non-key determinants inside the child tables.
+
+6. Sample Rows
+
+theatres
+
+theatre_id
+
+theatre_name
+
+location
+
+1
+
+PVR: Nexus
+
+Mumbai
+
+screens
+
+screen_id
+
+theatre_id
+
+screen_name
+
+1
+
+1
+
+Screen 1
+
+2
+
+1
+
+Screen 2
+
+3
+
+1
+
+Screen 3
+
+movies
+
+movie_id
+
+movie_name
+
+language
+
+1
+
+Dasara
+
+Telugu
+
+2
+
+Kisi Ka Bhai Kisi Ki Jaan
+
+Hindi
+
+3
+
+Tu Jhoothi Main Makkaar
+
+Hindi
+
+4
+
+Avatar: The Way of Water
+
+English
+
+formats
+
+format_id
+
+format_name
+
+1
+
+2D
+
+2
+
+3D
+
+shows
+
+show_id
+
+movie_id
+
+screen_id
+
+format_id
+
+show_date
+
+show_time
+
+1
+
+1
+
+1
+
+1
+
+2026-04-25
+
+12:15:00
+
+2
+
+2
+
+1
+
+1
+
+2026-04-25
+
+13:00:00
+
+3
+
+2
+
+1
+
+1
+
+2026-04-25
+
+16:10:00
+
+4
+
+2
+
+2
+
+1
+
+2026-04-25
+
+18:20:00
+
+5
+
+2
+
+2
+
+1
+
+2026-04-25
+
+19:20:00
+
+6
+
+2
+
+3
+
+1
+
+2026-04-25
+
+22:30:00
+
+7
+
+3
+
+1
+
+1
+
+2026-04-25
+
+13:15:00
+
+8
+
+4
+
+2
+
+2
+
+2026-04-25
+
+13:20:00
+
+7. P1 – MySQL CREATE TABLE and Sample INSERT Statements
+
+The complete executable SQL is provided in the accompanying bookmyshow.sql file. The script creates the database, all tables, constraints and sample records.
+
+CREATE TABLE theatres (
+    theatre_id INT PRIMARY KEY AUTO_INCREMENT,
+    theatre_name VARCHAR(100) NOT NULL,
+    location VARCHAR(150) NOT NULL
+);
+
+CREATE TABLE screens (
+    screen_id INT PRIMARY KEY AUTO_INCREMENT,
+    theatre_id INT NOT NULL,
+    screen_name VARCHAR(50) NOT NULL,
+    FOREIGN KEY (theatre_id) REFERENCES theatres(theatre_id),
+    UNIQUE (theatre_id, screen_name)
+);
+
+CREATE TABLE movies (
+    movie_id INT PRIMARY KEY AUTO_INCREMENT,
+    movie_name VARCHAR(200) NOT NULL,
+    language VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE formats (
+    format_id INT PRIMARY KEY AUTO_INCREMENT,
+    format_name VARCHAR(20) NOT NULL UNIQUE
+);
+
+CREATE TABLE shows (
+    show_id INT PRIMARY KEY AUTO_INCREMENT,
+    movie_id INT NOT NULL,
+    screen_id INT NOT NULL,
+    format_id INT NOT NULL,
+    show_date DATE NOT NULL,
+    show_time TIME NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+    FOREIGN KEY (screen_id) REFERENCES screens(screen_id),
+    FOREIGN KEY (format_id) REFERENCES formats(format_id),
+    UNIQUE (screen_id, show_date, show_time)
+);
+
+8. P2 – Query to List Shows by Theatre and Date
+
+The following query returns all shows for a given theatre and date, including movie name, language, format, screen and show timing. The result is ordered chronologically.
+
+SELECT
+    t.theatre_name,
+    t.location,
+    sc.screen_name,
+    m.movie_name,
+    m.language,
+    f.format_name,
+    s.show_date,
+    TIME_FORMAT(s.show_time, '%h:%i %p') AS show_time
+FROM shows AS s
+JOIN movies AS m
+    ON s.movie_id = m.movie_id
+JOIN screens AS sc
+    ON s.screen_id = sc.screen_id
+JOIN theatres AS t
+    ON sc.theatre_id = t.theatre_id
+JOIN formats AS f
+    ON s.format_id = f.format_id
+WHERE t.theatre_name = 'PVR: Nexus'
+  AND s.show_date = '2026-04-25'
+ORDER BY s.show_time;
+
+9. Expected Output for P2
+
+Theatre
+
+Location
+
+Screen
+
+Movie
+
+Language
+
+Format
+
+Date
+
+Show Time
+
+PVR: Nexus
+
+Mumbai
+
+Screen 1
+
+Dasara
+
+Telugu
+
+2D
+
+2026-04-25
+
+12:15 PM
+
+PVR: Nexus
+
+Mumbai
+
+Screen 1
+
+Kisi Ka Bhai Kisi Ki Jaan
+
+Hindi
+
+2D
+
+2026-04-25
+
+01:00 PM
+
+PVR: Nexus
+
+Mumbai
+
+Screen 1
+
+Tu Jhoothi Main Makkaar
+
+Hindi
+
+2D
+
+2026-04-25
+
+01:15 PM
+
+PVR: Nexus
+
+Mumbai
+
+Screen 2
+
+Avatar: The Way of Water
+
+English
+
+3D
+
+2026-04-25
+
+01:20 PM
+
+PVR: Nexus
+
+Mumbai
+
+Screen 1
+
+Kisi Ka Bhai Kisi Ki Jaan
+
+Hindi
+
+2D
+
+2026-04-25
+
+04:10 PM
+
+PVR: Nexus
+
+Mumbai
+
+Screen 2
+
+Kisi Ka Bhai Kisi Ki Jaan
+
+Hindi
+
+2D
+
+2026-04-25
+
+06:20 PM
+
+PVR: Nexus
+
+Mumbai
+
+Screen 2
+
+Kisi Ka Bhai Kisi Ki Jaan
+
+Hindi
+
+2D
+
+2026-04-25
+
+07:20 PM
+
+PVR: Nexus
+
+Mumbai
+
+Screen 3
+
+Kisi Ka Bhai Kisi Ki Jaan
+
+Hindi
+
+2D
+
+2026-04-25
+
+10:30 PM
+
+10. Assumptions
+
+A theatre can have multiple screens.
+
+Each screen belongs to exactly one theatre.
+
+A movie can have multiple shows.
+
+Each show belongs to exactly one movie, one screen and one format.
+
+A screen cannot have two shows at the same date and time; this is enforced using a UNIQUE constraint.
+
+The sample date 2026-04-25 is used only to demonstrate the query and sample output.
